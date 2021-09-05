@@ -6,3 +6,4 @@ There
 
     cargo build --release
     ./target/release/collatz 100 
+    time ./target/release/collatz 1000000 > /dev/null
