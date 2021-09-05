@@ -2,8 +2,6 @@ extern crate crossbeam;
 
 use std::env;
 
-const CHUNK_SIZE: usize = 10000;
-
 pub struct Collatz {
     curr: u128,
     done: bool,
@@ -60,12 +58,15 @@ fn calc_slice(slice: &mut [Result]) {
 }
 
 fn calc(upper_limit: u128) -> Vec<Result> {
+    let num_cpus = num_cpus::get();
+    let chunk_size: usize = (upper_limit / num_cpus as u128) as usize;
+
     let mut nums: Vec<u128> = (0..upper_limit).collect();
     let mut table: Vec<Result> = nums.iter_mut().map(|i| Result { start: *i, len: 0, index_max: 0, max: 0 }).collect();
 
     let _ = crossbeam::scope(|scope| {
         // Chop `table` into disjoint sub-slices.
-        for slice in table.chunks_mut(CHUNK_SIZE) {
+        for slice in table.chunks_mut(chunk_size) {
             // Spawn a thread operating on that subslice.
             scope.spawn(move |_| calc_slice(slice));
         }
