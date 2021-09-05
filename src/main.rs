@@ -69,6 +69,8 @@ fn calc(upper_limit: u128) -> Vec<Result> {
     }
 
     // https://doc.rust-lang.org/rust-by-example/std_misc/threads/testcase_mapreduce.html
+    // https://stackoverflow.com/questions/33818141/how-do-i-pass-disjoint-slices-from-a-vector-to-different-threads
+    // https://crates.io/crates/crossbeam
     let mut thread_children = vec![];
     for i in 0..num_cpus {
 
