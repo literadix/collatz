@@ -80,7 +80,11 @@ fn main() {
             match args[1].parse() {
                 Ok(upper_limit) => {
                     println!("Calculating ...");
-                    println!("{:?}", calc(upper_limit)) ;
+
+                    for record in calc(upper_limit){
+                        println!("{:?}", record) ;
+                    }
+
                 },
                 _ => help()
             }
