@@ -81,6 +81,10 @@ fn main() {
                 Ok(upper_limit) => {
                     println!("Calculating ...");
 
+                    #[cfg(not(debug_assertions))]
+                    println!("{:?}", calc(upper_limit).len()) ;
+
+                    #[cfg(debug_assertions)]
                     for record in calc(upper_limit){
                         println!("{:?}", record) ;
                     }
