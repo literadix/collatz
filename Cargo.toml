@@ -13,3 +13,4 @@ lto = true
 
 [dependencies]
 num_cpus = "1.13.0"
+crossbeam = { version = "0.8" }

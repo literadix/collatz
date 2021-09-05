@@ -1,5 +1,8 @@
+extern crate crossbeam;
+
 use std::env;
-use std::thread;
+
+const CHUNK_SIZE: usize = 10000;
 
 pub struct Collatz {
     curr: u128,
@@ -46,51 +49,29 @@ struct Result {
     max: usize,
 }
 
+fn calc_slice(slice: &mut [Result]) {
+    for (_, e) in slice.iter_mut().enumerate() {
+        let collatz: Vec<u128> = Collatz::new(e.start as u128).into_iter().collect();
+        let max_value = collatz.iter().fold(e.start, |max, &val| if val > max { val } else { max });
+        let index_of_max = collatz.iter().position(|&r| r == max_value).unwrap();
+
+        *e = Result { start: e.start, len: collatz.len(), index_max: index_of_max as usize, max: max_value as usize };
+    }
+}
+
 fn calc(upper_limit: u128) -> Vec<Result> {
-    let num_cpus = num_cpus::get();
-    let numbers: Vec<u128> = (1..upper_limit).collect();
-    let numbers_chunks: Vec<&[u128]> = numbers.chunks(num_cpus).collect();
+    let mut nums: Vec<u128> = (1..upper_limit).collect();
+    let mut table: Vec<Result> = nums.iter_mut().map(|i| Result { start: *i, len: 0, index_max: 0, max: 0 }).collect();
 
-    let mut results: Vec<Result> = Vec::new();
-    for chunk in numbers_chunks {
-        for s in chunk {
-            let collatz: Vec<u128> = Collatz::new(*s).into_iter().collect();
-            let max_value = collatz.iter().fold(0u128, |max, &val| if val > max { val } else { max });
-            let index_of_max = collatz.iter().position(|&r| r == max_value).unwrap();
-            //println! ("{:?} [{},{:?}[{}]]: {:?} ", s, collatz.len(), max_value, index_of_max ,collatz);
-
-            results.push(Result {
-                start: *s,
-                len: collatz.len(),
-                index_max: max_value as usize,
-                max: index_of_max,
-            });
+    let _ = crossbeam::scope(|scope| {
+        // Chop `table` into disjoint sub-slices.
+        for slice in table.chunks_mut(CHUNK_SIZE) {
+            // Spawn a thread operating on that subslice.
+            scope.spawn(move |_| calc_slice(slice));
         }
-    }
+    });
 
-    // https://doc.rust-lang.org/rust-by-example/std_misc/threads/testcase_mapreduce.html
-    // https://stackoverflow.com/questions/33818141/how-do-i-pass-disjoint-slices-from-a-vector-to-different-threads
-    // https://crates.io/crates/crossbeam
-    let mut thread_children = vec![];
-    for i in 0..num_cpus {
-
-        // Spin up another thread
-        thread_children.push(thread::spawn(move || -> Vec<Result>{
-            println!("Thread {:?}", i);
-            let results: Vec<Result> = Vec::new();
-            results
-        }));
-    }
-
-    for child in thread_children {
-        // Wait for the thread to finish. Returns a result.
-        let results = child.join();
-        for result in results.unwrap() {
-            println!("Thread {:?}", result);
-        }
-    }
-
-    results
+    table
 }
 
 fn main() {
