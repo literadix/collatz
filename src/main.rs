@@ -60,7 +60,7 @@ fn calc_slice(slice: &mut [Result]) {
 }
 
 fn calc(upper_limit: u128) -> Vec<Result> {
-    let mut nums: Vec<u128> = (1..upper_limit).collect();
+    let mut nums: Vec<u128> = (0..upper_limit).collect();
     let mut table: Vec<Result> = nums.iter_mut().map(|i| Result { start: *i, len: 0, index_max: 0, max: 0 }).collect();
 
     let _ = crossbeam::scope(|scope| {
@@ -79,15 +79,10 @@ fn main() {
     match args.len() {
         2 => {
             println!("{:?}", args);
-            match args[1].parse() {
+            match args[1].parse::<u128>() {
                 Ok(upper_limit) => {
                     println!("Calculating ...");
-
-                    #[cfg(not(debug_assertions))]
-                    println!("{:?}", calc(upper_limit).len());
-
-                    #[cfg(debug_assertions)]
-                    for record in calc(upper_limit) {
+                    for record in calc(upper_limit +1 ) {
                         println!("{:?}", record);
                     }
                 }
