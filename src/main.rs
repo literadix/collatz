@@ -35,20 +35,41 @@ fn help() {
     println!("usage: collatz <highest number>");
 }
 
-fn calc(upper_limit: u128) {
+#[derive(Debug)]
+struct Result {
+    start:u128,
+    len:usize,
+    index_max:usize,
+    max:usize
+}
+
+fn calc(upper_limit: u128) -> Vec<Result>{
 
     let num_cpus = num_cpus::get();
     let numbers: Vec<u128> = (1..upper_limit).collect();
     let numbers_chunks: Vec<&[u128]> = numbers.chunks(num_cpus).collect();
 
+    let mut results : Vec<Result> = Vec::new();
     for chunk in numbers_chunks {
         for s in chunk{
             let collatz : Vec<u128>= Collatz::new(*s).into_iter().collect();
             let max_value = collatz.iter().fold(0u128, |max, &val| if val > max{ val } else{ max });
             let index_of_max = collatz.iter().position(|&r| r == max_value).unwrap();
             println! ("{:?} [{},{:?}[{}]]: {:?} ", s, collatz.len(), max_value, index_of_max ,collatz);
+
+            results.push(Result{
+                start: *s,
+                len:collatz.len(),
+                index_max: max_value as usize,
+                max:index_of_max
+                });
+
         }
-    }}
+    }
+
+    results
+
+}
 
 fn main() {
 
@@ -57,7 +78,10 @@ fn main() {
         2 => {
             println!("{:?}", args);
             match args[1].parse() {
-                Ok(upper_limit) => calc(upper_limit),
+                Ok(upper_limit) => {
+                    println!("Calculating ...");
+                    println!("{:?}", calc(upper_limit)) ;
+                },
                 _ => help()
             }
         },
