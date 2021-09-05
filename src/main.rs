@@ -55,7 +55,7 @@ fn calc(upper_limit: u128) -> Vec<Result>{
             let collatz : Vec<u128>= Collatz::new(*s).into_iter().collect();
             let max_value = collatz.iter().fold(0u128, |max, &val| if val > max{ val } else{ max });
             let index_of_max = collatz.iter().position(|&r| r == max_value).unwrap();
-            println! ("{:?} [{},{:?}[{}]]: {:?} ", s, collatz.len(), max_value, index_of_max ,collatz);
+            //println! ("{:?} [{},{:?}[{}]]: {:?} ", s, collatz.len(), max_value, index_of_max ,collatz);
 
             results.push(Result{
                 start: *s,
