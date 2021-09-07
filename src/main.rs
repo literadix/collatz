@@ -27,7 +27,8 @@ impl Iterator for Collatz {
                 self.done = true;
                 1
             }
-            n if n % 2 == 0 => { n / 2 }
+            // n if n % 2 == 0 => { n / 2 } // even ?
+            n if n & 1 == 0 => { n / 2 } // even ?
             n => { n * 3 + 1 }
         };
 
