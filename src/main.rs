@@ -1,6 +1,7 @@
 extern crate crossbeam;
 
 use std::env;
+use std::cmp;
 
 pub struct Collatz {
     curr: u32,
@@ -60,7 +61,7 @@ fn calc_slice(slice: &mut [Result]) {
 
 fn calc(upper_limit: u32) -> Vec<Result> {
     let num_cpus = num_cpus::get();
-    let chunk_size: usize = (upper_limit / num_cpus as u32) as usize;
+    let chunk_size: usize = cmp::min(10000, upper_limit / num_cpus as u32) as usize;
 
     let mut nums: Vec<u32> = (0..upper_limit).collect();
     let mut table: Vec<Result> = nums.iter_mut().map(|i| Result { start: *i, len: 0, index_max: 0, max: 0 }).collect();
