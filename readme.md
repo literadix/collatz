@@ -1,4 +1,4 @@
-This program uses the Collatz sequences to demonstrate the 
+This program uses [Collatz sequences](https://en.wikipedia.org/wiki/Collatz_conjecture) to demonstrate the 
 parallel calculation of tasks in Rust. We use the crossbeam library
 for the parallelization.
 
